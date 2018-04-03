@@ -97,10 +97,24 @@ export default {
     },
 };
 </script>`
+}, {
+    input:
+`<template>
+    <div>
+        <text-field label="Label" />
+    </div>
+</template>`,
+    range: [[2, 27], [2, 32]],
+    output:
+`<template>
+    <div>
+        <text-field :label="$t('Label')" />
+    </div>
+</template>`
 }];
 
 function runCase(input: string, range: Range) {
-    let testFilePath = path.join(os.tmpdir(), 'translatable-' + (Math.random() * 100000) + '.jsx');
+    let testFilePath = path.join(os.tmpdir(), 'translatable-' + (Math.random() * 100000) + '.vue');
 
     fs.writeFileSync(testFilePath, input);
 

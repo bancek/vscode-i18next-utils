@@ -23,12 +23,41 @@ export function translatable() {
         }
     }
 
-    let newText: string;
+    let newText: string = null;
 
     if (inTemplate) {
         const text = editor.document.getText(range);
 
-        newText = `{{ $t('${text.replace(/'/g, '\\\'')}') }}`;
+        if (range.start.line === range.end.line) {
+            const line = editor.document.lineAt(range.start.line).text;
+
+            if (
+                line[range.start.character - 1] === '"' &&
+                line[range.start.character - 2] === '=' &&
+                line[range.end.character] === '"'
+            ) {
+                for (let i = range.start.character; i >= 0; i--) {
+                    if (line[i] === ' ') {
+                        const attr = line.substring(i + 1, range.start.character - 2);
+
+                        range = new vscode.Range(
+                            new vscode.Position(range.start.line, i + 1),
+                            new vscode.Position(range.start.line, range.end.character + 1),
+                        );
+
+                        console.log('attr', attr);
+
+                        newText = `:${attr}="$t('${text.replace(/'/g, '\\\'')}')"`;
+
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (newText == null) {
+            newText = `{{ $t('${text.replace(/'/g, '\\\'')}') }}`;
+        }
     } else {
         if (range.start.character !== 0) {
             const before = editor.document.getText(new vscode.Range(
